@@ -35,4 +35,18 @@ defmodule AutomataTest do
 
     assert [0, 3] in f_prime
   end
+
+  test "e_closure includes the same state and epsilon reachable states" do
+    nfae = Automata.part3_nfa_epsilon()
+
+    assert Automata.e_closure(nfae, [0]) == [0, 1, 2, 3, 7]
+    assert Automata.e_closure(nfae, [4]) == [1, 2, 3, 4, 6, 7]
+    assert Automata.e_closure(nfae, [8]) == [8]
+  end
+
+  test "e_closure works with multiple starting states" do
+    nfae = Automata.part3_nfa_epsilon()
+
+    assert Automata.e_closure(nfae, [4, 8]) == [1, 2, 3, 4, 6, 7, 8]
+  end
 end

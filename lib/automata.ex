@@ -31,6 +31,34 @@ defmodule Automata do
     {q_prime, sigma, d_prime, q0_prime, f_prime}
   end
 
+  def part3_nfa_epsilon do
+    q = Enum.to_list(0..10)
+    sigma = [:a, :b]
+
+    delta = %{
+      {0, :eps} => [1, 7],
+      {1, :eps} => [2, 3],
+      {2, :a} => [4],
+      {3, :b} => [5],
+      {4, :eps} => [6],
+      {5, :eps} => [6],
+      {6, :eps} => [1, 7],
+      {7, :a} => [8],
+      {8, :b} => [9],
+      {9, :b} => [10]
+    }
+
+    q0 = 0
+    f = [10]
+
+    {q, sigma, delta, q0, f}
+  end
+
+  def e_closure({_q, _sigma, delta, _q0, _f}, states) do
+    start = normalize_set(states)
+    e_closure_walk(delta, start, start)
+  end
+
   def powerset([]), do: [[]]
 
   def powerset([h | t]) do
@@ -66,5 +94,22 @@ defmodule Automata do
     states
     |> Enum.uniq()
     |> Enum.sort()
+  end
+
+  defp e_closure_walk(_delta, [], visited), do: normalize_set(visited)
+
+  defp e_closure_walk(delta, [current | rest], visited) do
+    next_eps = Map.get(delta, {current, :eps}, [])
+
+    {rest2, visited2} =
+      Enum.reduce(next_eps, {rest, visited}, fn state, {pending, seen} ->
+        if state in seen do
+          {pending, seen}
+        else
+          {pending ++ [state], seen ++ [state]}
+        end
+      end)
+
+    e_closure_walk(delta, rest2, visited2)
   end
 end
